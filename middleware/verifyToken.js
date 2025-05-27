@@ -1,38 +1,37 @@
-const { messages } = require('../helper/messages.js');
-const Helper = require('../helper/common.js');
-const { statusCode } = require('../helper/statusCodes.js');
-const helperObj = new Helper();
-const { ObjectId } = require('mongodb');
+const { verifyToken } = require('../helper/jwt');
+const { statusCode } = require('../helper/statusCodes');
+const { UserModel } = require('../models/users');
 
-const { UserModel } = require('../models/users.js');
-
-const verifyToken = async (req, res, next) => {
+const verifyAuthToken = async (req, res, next) => {
     try {
-        let token = req.headers.token;
-        if (!token) return helperObj.responseObj(res, statusCode.UNAUTHORIZED, {}, "Unauthorized user. Please login to continue.");
-        helperObj.verifyToken(token, "secretToken", async (err, result) => {
-            if (err) {
-                return helperObj.responseObj(res, statusCode.UNAUTHORIZED, err, "It seems your session has been expired. Please login again to continue.");
-            }
-            else {
-                let userData = await UserModel.findOne({ _id: ObjectId(result?._id) }).lean();
-                if (!userData || userData.isDeleted || !userData.isActive) {
-                    return helperObj.errorObj(res, statusCode.UNAUTHORIZED, messages.INVALID_TOKEN)
-                }
+        const token = req.headers.token || req.headers.authorization?.split(' ')[1];
 
-                req.userDetail = userData;
-                req.userId = result?._id;
-                req.hash = userData.password;
-                req.userName = `${userData.firstName} ${userData.lastName}`
-                next();
-            }
-        })
+        if (!token) {
+            return res.status(statusCode.UNAUTHORIZED).json({ message: "Unauthorized: No token provided" });
+        }
+
+        const { err, result } = verifyToken(token);
+
+        if (err || !result || !result._id) {
+            return res.status(statusCode.UNAUTHORIZED).json({ message: err?.message || "Unauthorized: Invalid token" });
+        }
+
+        const user = await UserModel.findOne({ _id: result._id });
+
+        if (!user || user.status === 'Inactive' || user.isDeleted) {
+            return res.status(statusCode.UNAUTHORIZED).json({ message: "Unauthorized: User inactive or deleted" });
+        }
+
+        req.decoded = user;
+        next();
+
+    } catch (error) {
+        console.error("Auth error:", error);
+        return res.status(statusCode.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
     }
-    catch (err) {
-        console.log("verify token middleware error occure", err?.message || err);
-        return helperObj.responseObj(res, statusCode.INTERNAL_SERVER_ERROR, err.messages, messages.INVALID_TOKEN)
-    }
-}
+};
+
 module.exports = {
-    verifyToken
-}
+    verifyAuthToken
+};
+

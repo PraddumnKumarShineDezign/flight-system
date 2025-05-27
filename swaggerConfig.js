@@ -1,14 +1,16 @@
 const swaggerAutogen = require('swagger-autogen')();
-const config = require("../config");
-const port = config.env.server.port || '3000';
+const config = require("./config");
+
+const port = config?.config?.env?.server?.port || '3000';
+
 const doc = {
   info: {
     title: 'Flight  System App API',
     version: '1.0.0',
     description: 'API for a Flight  System application.',
   },
-  
-  host: `localhost:${port}`, // Change this to your server's host and port
+
+  host: `localhost:${port}`,
   schemes: ['http'],
   components: {
     securitySchemes: {
@@ -28,7 +30,7 @@ const doc = {
 };
 
 const outputFile = './swagger_output.json';
-const endpointsFiles = ['./routes/index.js']; 
+const endpointsFiles = ['./routes/index.js'];
 
 swaggerAutogen(outputFile, endpointsFiles, doc).then(() => {
   require('./app');

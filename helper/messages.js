@@ -5,7 +5,6 @@ const messages = {
   USER_N_EXIST: "User doesn't exist with this email",
   USER_ADD: "User added successfully",
   USER_ALREADY_EXIST: "User already exist with this email",
-  USER_N_VERIFIED: "User not verified",
   INVALID_EMAIL: "Invalid email",
   DATA_FETCHED: "Data fetched successfully",
   MAIL_SEND: "Email sent successfully.Check your Email",
@@ -14,8 +13,9 @@ const messages = {
   SIGNUP_SUCCESS: "Signup successfully",
   INVALID_TOKEN: "Invalid token provided",
   PASSWORD_RESET: "Password reset successfully",
-  DATA_N_FOUND: "Data not found",
-  VERIFIED_SUCCESS: "Account verified successfully",
+  SMTHG_WRNG: "Something went wrong.",
+  USER_NF: "User not found.",
+
 };
 
 module.exports = {

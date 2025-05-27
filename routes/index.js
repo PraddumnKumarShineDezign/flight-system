@@ -1,18 +1,18 @@
 var express = require('express');
-const userR = require("../app/v1/user/router")
-const onboardingR = require("../app/v1/onBoarding/router")
+const { verifyAuthToken } = require("../middleware/verifyToken.js");
+const onboardingR = require("../app/onBoarding/router.js");
+const flightR = require("../app/flights/router.js");
 
 var router = express.Router();
 
 router.use('/onboarding', onboardingR);
 
 // verify token before every request
-const { verifyToken } = require("../middleware/verifyJWT.js");
 router.use((req, res, next) => {
-  verifyToken(req, res, next);
+  verifyAuthToken(req, res, next);
 });
 
-router.use("/flight", cmsR)
+router.use("/flight", flightR)
 
 
 module.exports = router;

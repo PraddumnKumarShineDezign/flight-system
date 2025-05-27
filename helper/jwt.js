@@ -3,7 +3,7 @@ const config = require('../config')
 
 function verifyToken(token) {
     try {
-        let decoded = jwt.verify(token, config.env.jwtSecret || "Flight-System-Secret");
+        let decoded = jwt.verify(token, config?.config?.env?.jwtSecret || "Flight-System-Secret");
         return { err: null, result: decoded }
     } catch (error) {
         console.error('JWT Verification Error:', error?.message);
@@ -17,7 +17,7 @@ function signToken(payload) {
             console.error("Payload is required to sign the token");
             return null;
         }
-        let token = jwt.sign(payload && JSON.stringify(payload), config.env.jwtSecret || "Flight-System-Secret");
+        let token = jwt.sign(payload && JSON.stringify(payload), config?.config?.env?.jwtSecret || "Flight-System-Secret");
         return token;
     } catch (error) {
         console.log("error=>", error);
