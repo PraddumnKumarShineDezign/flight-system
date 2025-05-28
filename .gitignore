@@ -1,7 +1,7 @@
 node_modules
-config.js
+# config.js
 settings.json
-connection.js
+# connection.js
 swagger_output.json
-reset.http
+# reset.http
 uploads

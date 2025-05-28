@@ -1,0 +1,73 @@
+#### Onboarding section apis 
+
+### login user 
+POST http://192.168.0.149:4001/onboarding/login
+Content-Type: application/json
+
+{
+   "email": "alice@yopmail.com",
+   "password": "Password@123"
+}
+
+
+### get all flight list with filter 
+POST http://192.168.0.149:4001/flight/list
+Content-Type: application/json
+token:eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2ODM1NWI0NjY1Y2FjYjM5NTFlMWNmMDUiLCJmaXJzdE5hbWUiOiJBbGljZSIsImxhc3ROYW1lIjoiU21pdGgiLCJlbWFpbCI6ImFsaWNlQHlvcG1haWwuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkSXd4Sk13Ri5JZG5JSEtWYXJadS5WT0RxWEdSRUFKeXVOUHFuNXIxMnFseVVLWVlzcjhPck8iLCJzdGF0dXMiOiJBY3RpdmUiLCJpc0VtYWlsVmVyaWZpZWQiOnRydWV9.1Q3WmuUNyfMW64SbhEqQ5KD6qwjNBDgzjGO_ivwqwXM
+
+{
+ "page":1,
+ "limit":5,
+ "origin": "Ber",
+ "destination":"",
+"airline":"",
+"departureDateTime":"",
+"numberOfPassengers":""
+}
+
+
+### book flights
+POST http://192.168.0.149:4001/flight/book
+Content-Type: application/json
+token:eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2ODM1NWI0NjY1Y2FjYjM5NTFlMWNmMDUiLCJmaXJzdE5hbWUiOiJBbGljZSIsImxhc3ROYW1lIjoiU21pdGgiLCJlbWFpbCI6ImFsaWNlQHlvcG1haWwuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkSXd4Sk13Ri5JZG5JSEtWYXJadS5WT0RxWEdSRUFKeXVOUHFuNXIxMnFseVVLWVlzcjhPck8iLCJzdGF0dXMiOiJBY3RpdmUiLCJpc0VtYWlsVmVyaWZpZWQiOnRydWV9.1Q3WmuUNyfMW64SbhEqQ5KD6qwjNBDgzjGO_ivwqwXM
+
+{
+    "flightId": "683559fc9a905d6a37b27140",
+    "seats": 5,
+    "specialRequests": "no",
+    "passengerDetails": {
+        "firstName": "Pradum",
+        "lastName": "shukla",
+        "email": "userpradum@yopmail.com",
+        "phone": "7458005300",
+        "passport": "77897987897"
+    },
+    "paymentDetails": {
+        "paymentMethod": "Debit Card",
+        "cardNumber": "7894561234567897",
+        "expiryDate": "10/12",
+        "cvv": "123"
+    },
+    "totalPrice": 3020
+}
+
+
+
+### my bookings 
+GET http://192.168.0.149:4001/flight/bookings/my
+Content-Type: application/json
+token:eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2ODM1NWI0NjY1Y2FjYjM5NTFlMWNmMDUiLCJmaXJzdE5hbWUiOiJBbGljZSIsImxhc3ROYW1lIjoiU21pdGgiLCJlbWFpbCI6ImFsaWNlQHlvcG1haWwuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkSXd4Sk13Ri5JZG5JSEtWYXJadS5WT0RxWEdSRUFKeXVOUHFuNXIxMnFseVVLWVlzcjhPck8iLCJzdGF0dXMiOiJBY3RpdmUiLCJpc0VtYWlsVmVyaWZpZWQiOnRydWV9.1Q3WmuUNyfMW64SbhEqQ5KD6qwjNBDgzjGO_ivwqwXM
+
+{
+ 
+}
+
+
+### get flight details by id 
+GET http://192.168.0.149:4001/flight/683559fc9a905d6a37b27140
+Content-Type: application/json
+token:eyJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI2ODM1NWI0NjY1Y2FjYjM5NTFlMWNmMDUiLCJmaXJzdE5hbWUiOiJBbGljZSIsImxhc3ROYW1lIjoiU21pdGgiLCJlbWFpbCI6ImFsaWNlQHlvcG1haWwuY29tIiwicGFzc3dvcmQiOiIkMmIkMTAkSXd4Sk13Ri5JZG5JSEtWYXJadS5WT0RxWEdSRUFKeXVOUHFuNXIxMnFseVVLWVlzcjhPck8iLCJzdGF0dXMiOiJBY3RpdmUiLCJpc0VtYWlsVmVyaWZpZWQiOnRydWV9.1Q3WmuUNyfMW64SbhEqQ5KD6qwjNBDgzjGO_ivwqwXM
+
+{
+ 
+}
