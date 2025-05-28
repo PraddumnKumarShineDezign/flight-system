@@ -23,12 +23,12 @@ module.exports = {
 
             if (!user.isEmailVerified) {
                 return res.status(200).send({
-                    message: message.VERIFY_EMAIL,
+                    message: messages.VERIFY_EMAIL,
                     data: { sendReVerifyMail: true }
                 });
             }
 
-            const isPassValid = await comparePassword(password, user.password);
+            const isPassValid = comparePassword(password, user.password);
             if (!isPassValid) {
                 return res.status(401).send({ message: "Invalid email or password" });
             }

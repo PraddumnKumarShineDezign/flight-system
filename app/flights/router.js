@@ -13,12 +13,12 @@ router.post("/list", Validator.list, controller.list);
 /**
  * @description : Book flight
  */
-router.post("/book", controller.bookFlight)
+router.post("/book", Validator.bookFlightValidation, controller.bookFlight)
 
 /**
  * @description : get flight details by id
  */
-router.get("/:flightId", Validator.idValidation, controller.bookFlight)
+router.get("/:flightId", Validator.idValidation, controller.getFlightById)
 
 
 /**

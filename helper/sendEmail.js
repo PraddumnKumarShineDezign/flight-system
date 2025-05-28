@@ -7,8 +7,8 @@ let transporter = nodemailer.createTransport({
     port: 587,
     secure: false,
     auth: {
-        user: config.smtp.auth.user || "avishek1322@gmail.com",
-        pass: config.smtp.auth.pass || "ibhk kqwb lzrf rwhc"
+        user: config.smtp.auth.user || "example@gmail.com",
+        pass: config.smtp.auth.pass || "1234 2545 5454 5454"
     },
 
 })
@@ -24,7 +24,6 @@ async function sendMail(to, html, subject, attachments = []) {
             subject: subject,
             attachments: attachments
         });
-        // console.log(l);
         return Promise.resolve();
     } catch (error) {
         return Promise.reject(error)

@@ -6,8 +6,7 @@
     "start": "node ./bin/www",
     "generate-docs": "node swaggerConfig.js",
     "userSeed": "node ./seeder/user.js",
-    "flightSeed": "node ./seeder/flight.js",
-    "addTemplates": "node ./seeder/addNewTemplates.js"
+    "flightSeed": "node ./seeder/flight.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",

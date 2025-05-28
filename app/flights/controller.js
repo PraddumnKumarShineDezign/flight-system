@@ -1,6 +1,9 @@
-const { FlightModel } = require("../../models/flight");
 const { messages } = require("../../helper/messages");
+const { FlightModel } = require("../../models/flight");
 const { BookingModel } = require("../../models/booking");
+const { PassengerDetailsModel } = require("../../models/PassengerDetails");
+const { PaymentDetailsModel } = require("../../models/PaymentDetails");
+const mongoose = require('mongoose');
 
 module.exports = {
   /**
@@ -8,7 +11,7 @@ module.exports = {
    */
   list: async (req, res) => {
     try {
-      let { page, limit, origin, destination, airline, departureDateTime } = req.body;
+      let { page, limit, origin, destination, airline, departureDateTime, numberOfPassengers } = req.body;
       page = Math.max(parseInt(page) || 1, 1);
       limit = Math.max(parseInt(limit) || 10, 1);
       skip = (page - 1) * limit;
@@ -33,6 +36,10 @@ module.exports = {
         nextDate.setDate(date.getDate() + 1);
         filters.departureDateTime = { $gte: date, $lt: nextDate };
       }
+      if (numberOfPassengers) {
+        filters.seatsAvailable = { $gte: parseInt(numberOfPassengers) };
+      }
+
 
       const [flights, total] = await Promise.all([
         FlightModel.find(filters).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
@@ -58,33 +65,60 @@ module.exports = {
   bookFlight: async (req, res) => {
     try {
       const userId = req?.decoded?._id;
-      const { flightId, passengers } = req.body;
+      const {
+        flightId,
+        seats,
+        passengerDetails, paymentDetails, specialRequests, totalPrice } = req.body;
+      console.log("paymentDetails", paymentDetails)
 
       const flight = await FlightModel.findById(flightId);
 
-      if (!flight || flight.seatsAvailable < passengers) {
+      if (!flight || flight.seatsAvailable < seats) {
         return res.status(400).json({ message: "Flight not found or not enough seats" });
       }
 
-      const totalAmount = flight.price * passengers;
-
-      const booking = await BookingModel.create({
-        flightId,
+      const existingBooking = await BookingModel.findOne({
         userId,
-        passengers,
-        totalAmount
+        flightId,
+        status: { $ne: "Cancelled" }
       });
 
-      flight.seatsAvailable -= passengers;
+      //check if user already book flight then send res.
+      if (existingBooking) {
+        return res.status(400).json({ message: "You have already booked this flight." });
+      }
+
+      const [savedPassenger, savedPayment] = await Promise.all([
+        PassengerDetailsModel.create(passengerDetails),
+        PaymentDetailsModel.create(paymentDetails),
+      ]);
+
+      const booking = await BookingModel.create({
+        userId,
+        flightId,
+        passengerId: savedPassenger._id,
+        paymentId: savedPayment._id,
+        seats,
+        totalAmount: totalPrice,
+        specialRequests: specialRequests || "",
+        status: "Booked",
+        bookingDate: new Date()
+      });
+
+      // Update flight seats
+      flight.seatsAvailable -= seats;
       await flight.save();
 
-      return res.status(200).json({ message: "Flight booked", data: booking });
-
+      return res.status(200).json({
+        message: "Flight booked successfully",
+        data: booking
+      });
     } catch (err) {
       console.error("Booking error:", err);
       return res.status(500).json({ message: "Server Error" });
     }
   },
+
 
   /**
    * @description get flight by id 
@@ -119,19 +153,80 @@ module.exports = {
   getMyBookings: async (req, res) => {
     try {
       const userId = req?.decoded?._id;
+      console.log("userId", userId);
 
-      const bookings = await BookingModel.find({ userId })
-        .populate("flightId")
-        .sort({ createdAt: -1 });
+      const bookings = await BookingModel.aggregate([
+        {
+          $match: { userId: new mongoose.Types.ObjectId(userId) }
+        },
+        {
+          $lookup: {
+            from: "flights",
+            localField: "flightId",
+            foreignField: "_id",
+            as: "flight"
+          }
+        },
+        { $unwind: "$flight" },
+        {
+          $lookup: {
+            from: "passengerdetails",
+            localField: "passengerId",
+            foreignField: "_id",
+            as: "passenger"
+          }
+        },
+        { $unwind: "$passenger" },
+        {
+          $lookup: {
+            from: "paymentdetails",
+            localField: "paymentId",
+            foreignField: "_id",
+            as: "payment"
+          }
+        },
+        { $unwind: "$payment" },
+        {
+          $sort: { createdAt: -1 }
+        },
+        {
+          $project: {
+            userId: 1,
+            seats: 1,
+            specialRequests: 1,
+            totalAmount: 1,
+            status: 1,
+            bookingDate: 1,
+            flight: {
+              flightNumber: 1,
+              origin: 1,
+              destination: 1,
+              departureTime: 1,
+              arrivalTime: 1
+            },
+            passenger: {
+              firstName: 1,
+              lastName: 1,
+              email: 1,
+              phone: 1,
+              passport: 1
+            },
+            payment: {
+              paymentMethod: 1,
+              cardNumber: 1,
+              expiryDate: 1
+            }
+          }
+        }
+      ]);
 
-      return res.status(200).send({
+      return res.status(200).json({
         message: "Booking history fetched successfully",
         data: bookings
       });
     } catch (error) {
       console.error("Get bookings error:", error);
-      return res.status(500).send({ message: error.message || "Something went wrong" });
+      return res.status(500).json({ message: error.message || "Something went wrong" });
     }
-  },
-
+  }
 }
